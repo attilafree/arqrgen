@@ -11,6 +11,7 @@ from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from PIL import Image, ImageDraw
 import io
+import xml.etree.ElementTree as ET
 
 class CircleAllModuleDrawer(QRModuleDrawer):
     """Custom drawer that makes ALL modules circular"""
@@ -113,7 +114,85 @@ def create_qr_code(url):
     img = replace_position_markers(img, box_size, border)
     img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
     
-    return img
+    return img, qr
+
+def draw_svg_position_marker(svg_elements, x, y, module_size):
+    """Add SVG elements for circular position marker"""
+    center_x = x + 3.5 * module_size
+    center_y = y + 3.5 * module_size
+    
+    # Outer circle
+    outer_r = 3.5 * module_size
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{outer_r}" fill="black"/>')
+    
+    # Middle white circle
+    middle_r = 2.5 * module_size
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{middle_r}" fill="white"/>')
+    
+    # Inner black circle
+    inner_r = 1.5 * module_size
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{inner_r}" fill="black"/>')
+
+def create_svg(url):
+    """Generate SVG QR code with circular dots"""
+    box_size = 40
+    border = 4
+    size = 1000
+    
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=box_size,
+        border=border,
+    )
+    
+    qr.add_data(url)
+    qr.make(fit=True)
+    
+    matrix = qr.get_matrix()
+    module_count = len(matrix)
+    
+    # Calculate scaling
+    module_size = size / (module_count + 2 * border)
+    offset = border * module_size
+    radius = module_size * 0.42
+    
+    # Start SVG
+    svg_elements = [
+        f'<?xml version="1.0" encoding="UTF-8"?>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
+        f'<rect width="{size}" height="{size}" fill="white"/>'
+    ]
+    
+    # Function to check if position is in a position marker
+    def is_position_marker(row, col):
+        if 0 <= row < 7 and 0 <= col < 7:
+            return True
+        if 0 <= row < 7 and module_count - 7 <= col < module_count:
+            return True
+        if module_count - 7 <= row < module_count and 0 <= col < 7:
+            return True
+        return False
+    
+    # Draw data modules as circles
+    for row in range(module_count):
+        for col in range(module_count):
+            if is_position_marker(row, col):
+                continue
+            
+            if matrix[row][col]:
+                cx = offset + col * module_size + module_size / 2
+                cy = offset + row * module_size + module_size / 2
+                svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
+    
+    # Draw circular position markers
+    draw_svg_position_marker(svg_elements, offset, offset, module_size)  # Top-left
+    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)  # Top-right
+    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)  # Bottom-left
+    
+    svg_elements.append('</svg>')
+    
+    return '\n'.join(svg_elements)
 
 def main():
     st.set_page_config(
@@ -147,7 +226,8 @@ def main():
             with st.spinner("Generating your QR code..."):
                 try:
                     # Generate QR code
-                    img = create_qr_code(url)
+                    img, qr = create_qr_code(url)
+                    svg_content = create_svg(url)
                     
                     # Display preview
                     st.success("✅ QR code generated successfully!")
@@ -173,9 +253,15 @@ def main():
                             use_container_width=True
                         )
                     
-                    # SVG info (would need potrace or conversion library)
+                    # SVG download
                     with col2:
-                        st.info("💡 SVG export coming soon")
+                        st.download_button(
+                            label="📥 Download SVG",
+                            data=svg_content,
+                            file_name=f"{filename}.svg",
+                            mime="image/svg+xml",
+                            use_container_width=True
+                        )
                     
                     # Show URL for verification
                     st.markdown("---")
@@ -192,19 +278,20 @@ def main():
         2. **Optional:** Change the filename if you want
         3. Click **Generate QR Code**
         4. Preview your QR code
-        5. Click **Download PNG** to save it
+        5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
         
         **Tips:**
         - Always include `https://` in your URL
         - Test the QR code with your phone camera before printing
-        - QR codes are 1000x1000 pixels, perfect for print
+        - Use PNG for general use (1000x1000 pixels)
+        - Use SVG for high-quality print and scaling
         """)
     
     # Footer
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #666; font-size: 0.9em;'>"
-        "Made with ❤️ for easy QR code generation"
+        "Made by AR | DBS for easy QR code generation"
         "</div>",
         unsafe_allow_html=True
     )
