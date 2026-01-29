@@ -303,7 +303,7 @@ def main():
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #666; font-size: 0.9em;'>"
-        "Made by AR | DBS for easy QR code generation"
+        "Made by AR for easy QR code generation"
         "</div>",
         unsafe_allow_html=True
     )
