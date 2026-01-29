@@ -11,7 +11,6 @@ from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from PIL import Image, ImageDraw
 import io
-import xml.etree.ElementTree as ET
 
 class CircleAllModuleDrawer(QRModuleDrawer):
     """Custom drawer that makes ALL modules circular"""
@@ -90,13 +89,20 @@ def replace_position_markers(img, box_size, border):
     
     return img
 
+def normalize_url(url):
+    """Clean up the URL but don't force https://"""
+    return url.strip()
+
 def create_qr_code(url):
     """Generate QR code with circular dots"""
     box_size = 40
     border = 4
     
+    # Normalize URL
+    url = normalize_url(url)
+    
     qr = qrcode.QRCode(
-        version=1,
+        version=None,  # Auto-size
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
@@ -114,7 +120,7 @@ def create_qr_code(url):
     img = replace_position_markers(img, box_size, border)
     img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
     
-    return img, qr
+    return img, qr, url
 
 def draw_svg_position_marker(svg_elements, x, y, module_size):
     """Add SVG elements for circular position marker"""
@@ -139,8 +145,11 @@ def create_svg(url):
     border = 4
     size = 1000
     
+    # Normalize URL
+    url = normalize_url(url)
+    
     qr = qrcode.QRCode(
-        version=1,
+        version=None,  # Auto-size
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
@@ -208,8 +217,8 @@ def main():
     st.markdown("---")
     url = st.text_input(
         "Enter the URL:",
-        placeholder="https://example.com",
-        help="Enter the full URL including https://"
+        placeholder="24.hu",
+        help="Enter your URL (you can include https:// for compatibility, but it's not required)"
     )
     
     filename = st.text_input(
@@ -226,7 +235,7 @@ def main():
             with st.spinner("Generating your QR code..."):
                 try:
                     # Generate QR code
-                    img, qr = create_qr_code(url)
+                    img, qr, normalized_url = create_qr_code(url)
                     svg_content = create_svg(url)
                     
                     # Display preview
@@ -265,7 +274,8 @@ def main():
                     
                     # Show URL for verification
                     st.markdown("---")
-                    st.markdown(f"**QR Code URL:** `{url}`")
+                    st.markdown(f"**QR Code URL:** `{normalized_url}`")
+                    st.info(f"💡 QR Code Version: {qr.version} | Modules: {len(qr.get_matrix())}x{len(qr.get_matrix())}")
                     
                 except Exception as e:
                     st.error(f"❌ Error generating QR code: {str(e)}")
@@ -274,17 +284,19 @@ def main():
     st.markdown("---")
     with st.expander("ℹ️ How to use"):
         st.markdown("""
-        1. **Enter the URL** you want to encode (e.g., your website, product page, etc.)
+        1. **Enter the URL** you want to encode (e.g., `24.hu`)
         2. **Optional:** Change the filename if you want
         3. Click **Generate QR Code**
         4. Preview your QR code
         5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
         
         **Tips:**
-        - Always include `https://` in your URL
+        - For cleaner QR codes, use short URLs without https:// (e.g., `24.hu`)
+        - Modern phones will recognize domains automatically
         - Test the QR code with your phone camera before printing
         - Use PNG for general use (1000x1000 pixels)
-        - Use SVG for high-quality print and scaling
+        - Use SVG for high-quality print and infinite scaling
+        - Shorter URLs create simpler, less "busy" QR codes
         """)
     
     # Footer
