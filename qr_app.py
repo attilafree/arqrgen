@@ -16,76 +16,62 @@ import io
 # Language dictionary
 TRANSLATIONS = {
     'en': {
-        'title': '🎯 QR Code Generator',
-        'subtitle': 'Generate stylish QR codes with circular dots for business cards and marketing materials',
-        'url_label': 'Enter the URL:',
+        'title': 'QR Code Generator',
+        'subtitle': 'Generate stylish QR codes with circular dots',
+        'url_label': 'Enter URL',
         'url_placeholder': '24.hu',
-        'url_help': 'Enter your URL (you can include https:// for compatibility, but it\'s not required)',
-        'filename_label': 'Filename (optional):',
-        'filename_help': 'Name for your QR code file (without extension)',
+        'filename_label': 'Filename',
         'generate_button': 'Generate QR Code',
         'error_empty': '⚠️ Please enter a URL',
-        'generating': 'Generating your QR code...',
-        'success': '✅ QR code generated successfully!',
-        'preview_title': '### Preview',
-        'download_title': '### Download',
-        'download_png': '📥 Download PNG',
-        'download_svg': '📥 Download SVG',
-        'qr_url_label': '**QR Code URL:**',
-        'qr_info': '💡 QR Code Version: {version} | Modules: {size}x{size}',
-        'instructions_title': 'ℹ️ How to use',
+        'generating': 'Generating...',
+        'success': '✅ Success!',
+        'preview_title': 'Preview',
+        'download_title': 'Download',
+        'download_png': '📥 PNG',
+        'download_svg': '📥 SVG',
+        'qr_url_label': 'URL:',
+        'instructions_title': 'How to use',
         'instructions': """
-        1. **Enter the URL** you want to encode (e.g., `24.hu`)
-        2. **Optional:** Change the filename if you want
-        3. Click **Generate QR Code**
-        4. Preview your QR code
-        5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
-        
-        **Tips:**
-        - For cleaner QR codes, use short URLs without https:// (e.g., `24.hu`)
-        - Modern phones will recognize domains automatically
-        - Test the QR code with your phone camera before printing
-        - Use PNG for general use (1000x1000 pixels)
-        - Use SVG for high-quality print and infinite scaling
-        - Shorter URLs create simpler, less "busy" QR codes
+**Quick Guide:**
+1. Enter your URL (e.g., `24.hu`)
+2. Click Generate
+3. Download PNG or SVG
+
+**Tips:**
+- Shorter URLs = cleaner QR codes
+- Modern phones read URLs without https://
+- Test before printing
         """,
-        'footer': 'Made by AR | DBS for easy QR code generation'
+        'footer': 'Made by AR | DBS'
     },
     'hu': {
-        'title': '🎯 QR Kód Generátor',
-        'subtitle': 'Készíts stílusos QR kódokat kör alakú pontokkal névjegykártyákhoz és marketing anyagokhoz',
-        'url_label': 'Add meg az URL-t:',
+        'title': 'QR Kód Generátor',
+        'subtitle': 'Készíts stílusos QR kódokat',
+        'url_label': 'URL megadása',
         'url_placeholder': '24.hu',
-        'url_help': 'Írd be az URL-t (a https:// elhagyható, a modern telefonok felismerik)',
-        'filename_label': 'Fájlnév (opcionális):',
-        'filename_help': 'A QR kód fájl neve (kiterjesztés nélkül)',
+        'filename_label': 'Fájlnév',
         'generate_button': 'QR Kód Létrehozása',
         'error_empty': '⚠️ Kérlek adj meg egy URL-t',
-        'generating': 'QR kód generálása...',
-        'success': '✅ QR kód sikeresen létrehozva!',
-        'preview_title': '### Előnézet',
-        'download_title': '### Letöltés',
-        'download_png': '📥 PNG Letöltése',
-        'download_svg': '📥 SVG Letöltése',
-        'qr_url_label': '**QR Kód URL:**',
-        'qr_info': '💡 QR Kód Verzió: {version} | Modulok: {size}x{size}',
-        'instructions_title': 'ℹ️ Használati útmutató',
+        'generating': 'Generálás...',
+        'success': '✅ Kész!',
+        'preview_title': 'Előnézet',
+        'download_title': 'Letöltés',
+        'download_png': '📥 PNG',
+        'download_svg': '📥 SVG',
+        'qr_url_label': 'URL:',
+        'instructions_title': 'Használat',
         'instructions': """
-        1. **Írd be az URL-t** amit kódolni szeretnél (pl.: `24.hu`)
-        2. **Opcionális:** Módosítsd a fájlnevet ha szeretnéd
-        3. Kattints a **QR Kód Létrehozása** gombra
-        4. Nézd meg az előnézetet
-        5. Kattints a **PNG Letöltése** vagy **SVG Letöltése** gombra
-        
-        **Tippek:**
-        - Tisztább QR kódokhoz használj rövid URL-t https:// nélkül (pl.: `24.hu`)
-        - A modern telefonok automatikusan felismerik a domain neveket
-        - Nyomtatás előtt teszteld le a QR kódot a telefonod kamerájával
-        - Használd a PNG-t általános célra (1000x1000 pixel)
-        - Használd az SVG-t nyomtatáshoz és végtelen méretezéshez
-        - A rövidebb URL-ek egyszerűbb, kevésbé zsúfolt QR kódokat eredményeznek
+**Gyors útmutató:**
+1. Írd be az URL-t (pl.: `24.hu`)
+2. Kattints a Generálás gombra
+3. Töltsd le PNG vagy SVG formátumban
+
+**Tippek:**
+- Rövidebb URL = tisztább QR kód
+- Modern telefonok https:// nélkül is felismerik
+- Nyomtatás előtt teszteld
         """,
-        'footer': 'Készítette: AR | DBS egyszerű QR kód generáláshoz'
+        'footer': 'Készítette: AR | DBS'
     }
 }
 
@@ -117,29 +103,14 @@ def draw_circular_position_marker(draw, x, y, module_size):
     center_x = x + 3.5 * module_size
     center_y = y + 3.5 * module_size
     
-    # Outer circle
     outer_r = 3.5 * module_size
-    draw.ellipse(
-        [center_x - outer_r, center_y - outer_r,
-         center_x + outer_r, center_y + outer_r],
-        fill='black'
-    )
+    draw.ellipse([center_x - outer_r, center_y - outer_r, center_x + outer_r, center_y + outer_r], fill='black')
     
-    # Middle white circle
     middle_r = 2.5 * module_size
-    draw.ellipse(
-        [center_x - middle_r, center_y - middle_r,
-         center_x + middle_r, center_y + middle_r],
-        fill='white'
-    )
+    draw.ellipse([center_x - middle_r, center_y - middle_r, center_x + middle_r, center_y + middle_r], fill='white')
     
-    # Inner black circle
     inner_r = 1.5 * module_size
-    draw.ellipse(
-        [center_x - inner_r, center_y - inner_r,
-         center_x + inner_r, center_y + inner_r],
-        fill='black'
-    )
+    draw.ellipse([center_x - inner_r, center_y - inner_r, center_x + inner_r, center_y + inner_r], fill='black')
 
 def replace_position_markers(img, box_size, border):
     """Replace square position markers with circular ones"""
@@ -148,44 +119,34 @@ def replace_position_markers(img, box_size, border):
     offset = border * box_size
     marker_size = 7 * module_size
     
-    # Calculate QR size
     img_size = img.size[0]
     qr_size = (img_size - 2 * offset) // module_size
     top_right_x = offset + (qr_size - 7) * module_size
     bottom_left_y = offset + (qr_size - 7) * module_size
     
-    # Clear position marker areas
     draw.rectangle([offset, offset, offset + marker_size, offset + marker_size], fill='white')
     draw.rectangle([top_right_x, offset, top_right_x + marker_size, offset + marker_size], fill='white')
     draw.rectangle([offset, bottom_left_y, offset + marker_size, bottom_left_y + marker_size], fill='white')
     
-    # Draw circular markers
     draw_circular_position_marker(draw, offset, offset, module_size)
     draw_circular_position_marker(draw, top_right_x, offset, module_size)
     draw_circular_position_marker(draw, offset, bottom_left_y, module_size)
     
     return img
 
-def normalize_url(url):
-    """Clean up the URL but don't force https://"""
-    return url.strip()
-
 def create_qr_code(url):
     """Generate QR code with circular dots"""
     box_size = 40
     border = 4
     
-    # Normalize URL
-    url = normalize_url(url)
-    
     qr = qrcode.QRCode(
-        version=None,  # Auto-size
+        version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
     )
     
-    qr.add_data(url)
+    qr.add_data(url.strip())
     qr.make(fit=True)
     
     img = qr.make_image(
@@ -197,22 +158,19 @@ def create_qr_code(url):
     img = replace_position_markers(img, box_size, border)
     img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
     
-    return img, qr, url
+    return img, qr, url.strip()
 
 def draw_svg_position_marker(svg_elements, x, y, module_size):
     """Add SVG elements for circular position marker"""
     center_x = x + 3.5 * module_size
     center_y = y + 3.5 * module_size
     
-    # Outer circle
     outer_r = 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{outer_r}" fill="black"/>')
     
-    # Middle white circle
     middle_r = 2.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{middle_r}" fill="white"/>')
     
-    # Inner black circle
     inner_r = 1.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{inner_r}" fill="black"/>')
 
@@ -222,35 +180,29 @@ def create_svg(url):
     border = 4
     size = 1000
     
-    # Normalize URL
-    url = normalize_url(url)
-    
     qr = qrcode.QRCode(
-        version=None,  # Auto-size
+        version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
     )
     
-    qr.add_data(url)
+    qr.add_data(url.strip())
     qr.make(fit=True)
     
     matrix = qr.get_matrix()
     module_count = len(matrix)
     
-    # Calculate scaling
     module_size = size / (module_count + 2 * border)
     offset = border * module_size
     radius = module_size * 0.42
     
-    # Start SVG
     svg_elements = [
         f'<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
-    # Function to check if position is in a position marker
     def is_position_marker(row, col):
         if 0 <= row < 7 and 0 <= col < 7:
             return True
@@ -260,7 +212,6 @@ def create_svg(url):
             return True
         return False
     
-    # Draw data modules as circles
     for row in range(module_count):
         for col in range(module_count):
             if is_position_marker(row, col):
@@ -271,10 +222,9 @@ def create_svg(url):
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
-    # Draw circular position markers
-    draw_svg_position_marker(svg_elements, offset, offset, module_size)  # Top-left
-    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)  # Top-right
-    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)  # Bottom-left
+    draw_svg_position_marker(svg_elements, offset, offset, module_size)
+    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)
+    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)
     
     svg_elements.append('</svg>')
     
@@ -291,221 +241,64 @@ def main():
     # Initialize session state
     if 'language' not in st.session_state:
         st.session_state.language = 'en'
-    if 'dark_mode' not in st.session_state:
-        st.session_state.dark_mode = True
     
-    # Get current language translations
     t = TRANSLATIONS[st.session_state.language]
     
-    # Custom CSS for sleek minimal design with dark/light mode
-    dark_bg = "#0E1117" if st.session_state.dark_mode else "#FFFFFF"
-    dark_secondary_bg = "#1E1E1E" if st.session_state.dark_mode else "#F8F9FA"
-    dark_text = "#FAFAFA" if st.session_state.dark_mode else "#0E1117"
-    dark_secondary_text = "#B0B0B0" if st.session_state.dark_mode else "#666666"
-    accent_color = "#4A90E2"  # Elegant blue
-    
-    st.markdown(f"""
+    # Minimal custom CSS
+    st.markdown("""
     <style>
-    /* Global theme */
-    .stApp {{
-        background-color: {dark_bg};
-        color: {dark_text};
-    }}
-    
-    /* Header controls */
-    .header-controls {{
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 999;
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }}
-    
-    /* Flag button */
-    .flag-btn {{
-        background: {dark_secondary_bg};
-        border: 2px solid {accent_color};
-        border-radius: 50%;
-        width: 45px;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 24px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
-    }}
-    
-    .flag-btn:hover {{
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
-    }}
-    
-    /* Dark mode toggle */
-    .mode-toggle {{
-        background: {dark_secondary_bg};
-        border: 2px solid {accent_color};
-        border-radius: 25px;
-        width: 50px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        padding: 2px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
-    }}
-    
-    .mode-toggle:hover {{
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
-    }}
-    
-    .mode-slider {{
-        background: {accent_color};
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        transition: transform 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-    }}
-    
-    /* Button styling */
-    .stButton > button {{
-        background: linear-gradient(135deg, {accent_color} 0%, #357ABD 100%);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-    }}
-    
-    .stButton > button:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
-    }}
-    
-    /* Download buttons */
-    .stDownloadButton > button {{
-        background: {dark_secondary_bg};
-        color: {accent_color};
-        border: 2px solid {accent_color};
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }}
-    
-    .stDownloadButton > button:hover {{
-        background: {accent_color};
-        color: white;
-        transform: translateY(-2px);
-    }}
-    
-    /* Input fields */
-    .stTextInput > div > div > input {{
-        border-radius: 12px;
-        border: 2px solid {accent_color};
-        background: {dark_secondary_bg};
-        color: {dark_text};
-        padding: 12px;
-        transition: all 0.3s ease;
-    }}
-    
-    .stTextInput > div > div > input:focus {{
-        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-    }}
-    
-    /* Cards and containers */
-    .element-container {{
-        background: {dark_secondary_bg};
-        border-radius: 16px;
-        padding: 20px;
-        margin: 10px 0;
-    }}
-    
-    /* Success/Error messages */
-    .stSuccess {{
-        background: rgba(74, 144, 226, 0.1);
-        border-left: 4px solid {accent_color};
-        border-radius: 8px;
-    }}
-    
-    .stError {{
-        background: rgba(255, 77, 77, 0.1);
-        border-left: 4px solid #FF4D4D;
-        border-radius: 8px;
-    }}
-    
-    /* Expander */
-    .streamlit-expanderHeader {{
-        background: {dark_secondary_bg};
-        border-radius: 12px;
-        color: {dark_text};
-    }}
-    
-    /* Info boxes */
-    .stAlert {{
-        border-radius: 12px;
-        border: 2px solid {accent_color};
-        background: rgba(74, 144, 226, 0.1);
-    }}
-    
-    /* Hide Streamlit branding */
-    #MainMenu {{visibility: hidden;}}
-    footer {{visibility: hidden;}}
-    
-    /* Responsive spacing */
-    .main .block-container {{
-        padding-top: 80px;
+    .stApp {
         max-width: 800px;
-    }}
+        margin: 0 auto;
+    }
+    .controls-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+    .flag-button {
+        font-size: 28px;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.2s;
+    }
+    .flag-button:hover {
+        transform: scale(1.2);
+    }
     </style>
     """, unsafe_allow_html=True)
     
-    # Header controls (fixed position)
-    col1, col2, col3 = st.columns([6, 1, 1])
+    # Header with language switch
+    col1, col2 = st.columns([5, 1])
+    
+    with col1:
+        st.title(f"🎯 {t['title']}")
+        st.caption(t['subtitle'])
     
     with col2:
-        # Dark/Light mode toggle
-        dark_mode_toggle = st.button(
-            "🌙" if st.session_state.dark_mode else "☀️",
-            key="dark_mode_btn",
-            help="Toggle dark/light mode"
-        )
-        if dark_mode_toggle:
-            st.session_state.dark_mode = not st.session_state.dark_mode
-            st.rerun()
-    
-    with col3:
-        # Language flag button
+        st.write("")  # Spacing
         current_flag = "🇭🇺" if st.session_state.language == 'hu' else "🇬🇧"
-        if st.button(current_flag, key="lang_btn", help="Switch language"):
+        if st.button(current_flag, key="lang", help="Switch language", use_container_width=True):
             st.session_state.language = 'hu' if st.session_state.language == 'en' else 'en'
             st.rerun()
     
-    st.title(t['title'])
-    st.markdown(f"<p style='color: {dark_secondary_text}; font-size: 1.1em;'>{t['subtitle']}</p>", unsafe_allow_html=True)
+    st.divider()
     
     # Input section
-    st.markdown("---")
     url = st.text_input(
         t['url_label'],
         placeholder=t['url_placeholder'],
-        help=t['url_help']
+        label_visibility="visible"
     )
     
-    filename = st.text_input(
-        t['filename_label'],
-        value="qr_code",
-        help=t['filename_help']
-    )
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        filename = st.text_input(
+            t['filename_label'],
+            value="qr_code",
+            label_visibility="visible"
+        )
     
     # Generate button
     if st.button(t['generate_button'], type="primary", use_container_width=True):
@@ -514,35 +307,31 @@ def main():
         else:
             with st.spinner(t['generating']):
                 try:
-                    # Generate QR code
                     img, qr, normalized_url = create_qr_code(url)
                     svg_content = create_svg(url)
                     
-                    # Display preview
                     st.success(t['success'])
-                    st.markdown("---")
-                    st.markdown(t['preview_title'])
-                    st.image(img, caption="QR Code", use_container_width=True)
+                    st.divider()
+                    
+                    # Preview
+                    st.subheader(t['preview_title'])
+                    st.image(img, use_container_width=True)
                     
                     # Download buttons
-                    st.markdown(t['download_title'])
+                    st.subheader(t['download_title'])
                     col1, col2 = st.columns(2)
                     
-                    # PNG download
                     with col1:
                         buf = io.BytesIO()
                         img.save(buf, format='PNG')
-                        png_data = buf.getvalue()
-                        
                         st.download_button(
                             label=t['download_png'],
-                            data=png_data,
+                            data=buf.getvalue(),
                             file_name=f"{filename}.png",
                             mime="image/png",
                             use_container_width=True
                         )
                     
-                    # SVG download
                     with col2:
                         st.download_button(
                             label=t['download_svg'],
@@ -552,27 +341,20 @@ def main():
                             use_container_width=True
                         )
                     
-                    # Show URL for verification
-                    st.markdown("---")
-                    st.markdown(f"{t['qr_url_label']} `{normalized_url}`")
-                    st.info(t['qr_info'].format(version=qr.version, size=len(qr.get_matrix())))
+                    st.divider()
+                    st.caption(f"{t['qr_url_label']} `{normalized_url}`")
                     
                 except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
+                    st.error(f"❌ {str(e)}")
     
     # Instructions
-    st.markdown("---")
+    st.divider()
     with st.expander(t['instructions_title']):
         st.markdown(t['instructions'])
     
     # Footer
-    st.markdown("---")
-    st.markdown(
-        f"<div style='text-align: center; color: {dark_secondary_text}; font-size: 0.9em;'>"
-        f"{t['footer']}"
-        "</div>",
-        unsafe_allow_html=True
-    )
+    st.divider()
+    st.caption(f"<center>{t['footer']}</center>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
