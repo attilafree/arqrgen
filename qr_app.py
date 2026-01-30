@@ -2,7 +2,6 @@
 """
 QR Code Generator Web App
 Streamlit interface for non-technical users
-Bilingual: English and Hungarian
 """
 
 import streamlit as st
@@ -12,68 +11,6 @@ from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from PIL import Image, ImageDraw
 import io
-
-# Language dictionary
-TRANSLATIONS = {
-    'en': {
-        'title': 'QR Code Generator',
-        'subtitle': 'Generate stylish QR codes with circular dots',
-        'url_label': 'Enter URL',
-        'url_placeholder': '24.hu',
-        'filename_label': 'Filename',
-        'generate_button': 'Generate QR Code',
-        'error_empty': '⚠️ Please enter a URL',
-        'generating': 'Generating...',
-        'success': '✅ Success!',
-        'preview_title': 'Preview',
-        'download_title': 'Download',
-        'download_png': '📥 PNG',
-        'download_svg': '📥 SVG',
-        'qr_url_label': 'URL:',
-        'instructions_title': 'How to use',
-        'instructions': """
-**Quick Guide:**
-1. Enter your URL (e.g., `24.hu`)
-2. Click Generate
-3. Download PNG or SVG
-
-**Tips:**
-- Shorter URLs = cleaner QR codes
-- Modern phones read URLs without https://
-- Test before printing
-        """,
-        'footer': 'Made by AR | DBS'
-    },
-    'hu': {
-        'title': 'QR Kód Generátor',
-        'subtitle': 'Készíts stílusos QR kódokat',
-        'url_label': 'URL megadása',
-        'url_placeholder': '24.hu',
-        'filename_label': 'Fájlnév',
-        'generate_button': 'QR Kód Létrehozása',
-        'error_empty': '⚠️ Kérlek adj meg egy URL-t',
-        'generating': 'Generálás...',
-        'success': '✅ Kész!',
-        'preview_title': 'Előnézet',
-        'download_title': 'Letöltés',
-        'download_png': '📥 PNG',
-        'download_svg': '📥 SVG',
-        'qr_url_label': 'URL:',
-        'instructions_title': 'Használat',
-        'instructions': """
-**Gyors útmutató:**
-1. Írd be az URL-t (pl.: `24.hu`)
-2. Kattints a Generálás gombra
-3. Töltsd le PNG vagy SVG formátumban
-
-**Tippek:**
-- Rövidebb URL = tisztább QR kód
-- Modern telefonok https:// nélkül is felismerik
-- Nyomtatás előtt teszteld
-        """,
-        'footer': 'Készítette: AR | DBS'
-    }
-}
 
 class CircleAllModuleDrawer(QRModuleDrawer):
     """Custom drawer that makes ALL modules circular"""
@@ -103,14 +40,29 @@ def draw_circular_position_marker(draw, x, y, module_size):
     center_x = x + 3.5 * module_size
     center_y = y + 3.5 * module_size
     
+    # Outer circle
     outer_r = 3.5 * module_size
-    draw.ellipse([center_x - outer_r, center_y - outer_r, center_x + outer_r, center_y + outer_r], fill='black')
+    draw.ellipse(
+        [center_x - outer_r, center_y - outer_r,
+         center_x + outer_r, center_y + outer_r],
+        fill='black'
+    )
     
+    # Middle white circle
     middle_r = 2.5 * module_size
-    draw.ellipse([center_x - middle_r, center_y - middle_r, center_x + middle_r, center_y + middle_r], fill='white')
+    draw.ellipse(
+        [center_x - middle_r, center_y - middle_r,
+         center_x + middle_r, center_y + middle_r],
+        fill='white'
+    )
     
+    # Inner black circle
     inner_r = 1.5 * module_size
-    draw.ellipse([center_x - inner_r, center_y - inner_r, center_x + inner_r, center_y + inner_r], fill='black')
+    draw.ellipse(
+        [center_x - inner_r, center_y - inner_r,
+         center_x + inner_r, center_y + inner_r],
+        fill='black'
+    )
 
 def replace_position_markers(img, box_size, border):
     """Replace square position markers with circular ones"""
@@ -119,34 +71,44 @@ def replace_position_markers(img, box_size, border):
     offset = border * box_size
     marker_size = 7 * module_size
     
+    # Calculate QR size
     img_size = img.size[0]
     qr_size = (img_size - 2 * offset) // module_size
     top_right_x = offset + (qr_size - 7) * module_size
     bottom_left_y = offset + (qr_size - 7) * module_size
     
+    # Clear position marker areas
     draw.rectangle([offset, offset, offset + marker_size, offset + marker_size], fill='white')
     draw.rectangle([top_right_x, offset, top_right_x + marker_size, offset + marker_size], fill='white')
     draw.rectangle([offset, bottom_left_y, offset + marker_size, bottom_left_y + marker_size], fill='white')
     
+    # Draw circular markers
     draw_circular_position_marker(draw, offset, offset, module_size)
     draw_circular_position_marker(draw, top_right_x, offset, module_size)
     draw_circular_position_marker(draw, offset, bottom_left_y, module_size)
     
     return img
 
+def normalize_url(url):
+    """Clean up the URL but don't force https://"""
+    return url.strip()
+
 def create_qr_code(url):
     """Generate QR code with circular dots"""
     box_size = 40
     border = 4
     
+    # Normalize URL
+    url = normalize_url(url)
+    
     qr = qrcode.QRCode(
-        version=None,
+        version=None,  # Auto-size
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
     )
     
-    qr.add_data(url.strip())
+    qr.add_data(url)
     qr.make(fit=True)
     
     img = qr.make_image(
@@ -158,19 +120,22 @@ def create_qr_code(url):
     img = replace_position_markers(img, box_size, border)
     img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
     
-    return img, qr, url.strip()
+    return img, qr, url
 
 def draw_svg_position_marker(svg_elements, x, y, module_size):
     """Add SVG elements for circular position marker"""
     center_x = x + 3.5 * module_size
     center_y = y + 3.5 * module_size
     
+    # Outer circle
     outer_r = 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{outer_r}" fill="black"/>')
     
+    # Middle white circle
     middle_r = 2.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{middle_r}" fill="white"/>')
     
+    # Inner black circle
     inner_r = 1.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{inner_r}" fill="black"/>')
 
@@ -180,29 +145,35 @@ def create_svg(url):
     border = 4
     size = 1000
     
+    # Normalize URL
+    url = normalize_url(url)
+    
     qr = qrcode.QRCode(
-        version=None,
+        version=None,  # Auto-size
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
     )
     
-    qr.add_data(url.strip())
+    qr.add_data(url)
     qr.make(fit=True)
     
     matrix = qr.get_matrix()
     module_count = len(matrix)
     
+    # Calculate scaling
     module_size = size / (module_count + 2 * border)
     offset = border * module_size
     radius = module_size * 0.42
     
+    # Start SVG
     svg_elements = [
         f'<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
+    # Function to check if position is in a position marker
     def is_position_marker(row, col):
         if 0 <= row < 7 and 0 <= col < 7:
             return True
@@ -212,6 +183,7 @@ def create_svg(url):
             return True
         return False
     
+    # Draw data modules as circles
     for row in range(module_count):
         for col in range(module_count):
             if is_position_marker(row, col):
@@ -222,9 +194,10 @@ def create_svg(url):
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
-    draw_svg_position_marker(svg_elements, offset, offset, module_size)
-    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)
-    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)
+    # Draw circular position markers
+    draw_svg_position_marker(svg_elements, offset, offset, module_size)  # Top-left
+    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)  # Top-right
+    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)  # Bottom-left
     
     svg_elements.append('</svg>')
     
@@ -234,127 +207,106 @@ def main():
     st.set_page_config(
         page_title="QR Code Generator",
         page_icon="🎯",
-        layout="centered",
-        initial_sidebar_state="collapsed"
+        layout="centered"
     )
     
-    # Initialize session state
-    if 'language' not in st.session_state:
-        st.session_state.language = 'en'
-    
-    t = TRANSLATIONS[st.session_state.language]
-    
-    # Minimal custom CSS
-    st.markdown("""
-    <style>
-    .stApp {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    .controls-row {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-bottom: 30px;
-    }
-    .flag-button {
-        font-size: 28px;
-        cursor: pointer;
-        user-select: none;
-        transition: transform 0.2s;
-    }
-    .flag-button:hover {
-        transform: scale(1.2);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Header with language switch
-    col1, col2 = st.columns([5, 1])
-    
-    with col1:
-        st.title(f"🎯 {t['title']}")
-        st.caption(t['subtitle'])
-    
-    with col2:
-        st.write("")  # Spacing
-        current_flag = "🇭🇺" if st.session_state.language == 'hu' else "🇬🇧"
-        if st.button(current_flag, key="lang", help="Switch language", use_container_width=True):
-            st.session_state.language = 'hu' if st.session_state.language == 'en' else 'en'
-            st.rerun()
-    
-    st.divider()
+    st.title("🎯 QR Code Generator")
+    st.markdown("Generate stylish QR codes with circular dots for business cards and marketing materials")
     
     # Input section
+    st.markdown("---")
     url = st.text_input(
-        t['url_label'],
-        placeholder=t['url_placeholder'],
-        label_visibility="visible"
+        "Enter the URL:",
+        placeholder="24.hu",
+        help="Enter your URL (you can include https:// for compatibility, but it's not required)"
     )
     
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        filename = st.text_input(
-            t['filename_label'],
-            value="qr_code",
-            label_visibility="visible"
-        )
+    filename = st.text_input(
+        "Filename (optional):",
+        value="qr_code",
+        help="Name for your QR code file (without extension)"
+    )
     
     # Generate button
-    if st.button(t['generate_button'], type="primary", use_container_width=True):
+    if st.button("Generate QR Code", type="primary", use_container_width=True):
         if not url:
-            st.error(t['error_empty'])
+            st.error("⚠️ Please enter a URL")
         else:
-            with st.spinner(t['generating']):
+            with st.spinner("Generating your QR code..."):
                 try:
+                    # Generate QR code
                     img, qr, normalized_url = create_qr_code(url)
                     svg_content = create_svg(url)
                     
-                    st.success(t['success'])
-                    st.divider()
-                    
-                    # Preview
-                    st.subheader(t['preview_title'])
-                    st.image(img, use_container_width=True)
+                    # Display preview
+                    st.success("✅ QR code generated successfully!")
+                    st.markdown("---")
+                    st.markdown("### Preview")
+                    st.image(img, caption="Your QR Code", use_container_width=True)
                     
                     # Download buttons
-                    st.subheader(t['download_title'])
+                    st.markdown("### Download")
                     col1, col2 = st.columns(2)
                     
+                    # PNG download
                     with col1:
                         buf = io.BytesIO()
                         img.save(buf, format='PNG')
+                        png_data = buf.getvalue()
+                        
                         st.download_button(
-                            label=t['download_png'],
-                            data=buf.getvalue(),
+                            label="📥 Download PNG",
+                            data=png_data,
                             file_name=f"{filename}.png",
                             mime="image/png",
                             use_container_width=True
                         )
                     
+                    # SVG download
                     with col2:
                         st.download_button(
-                            label=t['download_svg'],
+                            label="📥 Download SVG",
                             data=svg_content,
                             file_name=f"{filename}.svg",
                             mime="image/svg+xml",
                             use_container_width=True
                         )
                     
-                    st.divider()
-                    st.caption(f"{t['qr_url_label']} `{normalized_url}`")
+                    # Show URL for verification
+                    st.markdown("---")
+                    st.markdown(f"**QR Code URL:** `{normalized_url}`")
+                    st.info(f"💡 QR Code Version: {qr.version} | Modules: {len(qr.get_matrix())}x{len(qr.get_matrix())}")
                     
                 except Exception as e:
-                    st.error(f"❌ {str(e)}")
+                    st.error(f"❌ Error generating QR code: {str(e)}")
     
     # Instructions
-    st.divider()
-    with st.expander(t['instructions_title']):
-        st.markdown(t['instructions'])
+    st.markdown("---")
+    with st.expander("ℹ️ How to use"):
+        st.markdown("""
+        1. **Enter the URL** you want to encode (e.g., `24.hu`)
+        2. **Optional:** Change the filename if you want
+        3. Click **Generate QR Code**
+        4. Preview your QR code
+        5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
+        
+        **Tips:**
+        - For cleaner QR codes, use short URLs without https:// (e.g., `24.hu`)
+        - Modern phones will recognize domains automatically
+        - Test the QR code with your phone camera before printing
+        - Use PNG for general use (1000x1000 pixels)
+        - Use SVG for high-quality print and infinite scaling
+        - Shorter URLs create simpler, less "busy" QR codes
+        """)
     
     # Footer
-    st.divider()
-    st.caption(f"<center>{t['footer']}</center>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown(
+        "<div style='text-align: center; color: #666; font-size: 0.9em;'>"
+        "Made by AR for easy QR code generation"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 if __name__ == "__main__":
     main()
