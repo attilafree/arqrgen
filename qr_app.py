@@ -269,7 +269,31 @@ def create_svg_elegant(url):
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
-    # First, draw the circular position markers (bottom layer)
+    def is_in_position_marker_area(row, col):
+        """Check if position is within or near a position marker (including separator)"""
+        # Top-left (0-7 includes the 7x7 marker + separator)
+        if row <= 7 and col <= 7:
+            return True
+        # Top-right 
+        if row <= 7 and col >= module_count - 8:
+            return True
+        # Bottom-left
+        if row >= module_count - 8 and col <= 7:
+            return True
+        return False
+    
+    # Draw data modules as circles FIRST (skip position marker areas completely)
+    for row in range(module_count):
+        for col in range(module_count):
+            if is_in_position_marker_area(row, col):
+                continue
+            
+            if matrix[row][col]:
+                cx = offset + col * module_size + module_size / 2
+                cy = offset + row * module_size + module_size / 2
+                svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
+    
+    # NOW draw the circular position markers on top
     # Top-left
     x_tl = offset
     y_tl = offset
@@ -296,29 +320,6 @@ def create_svg_elegant(url):
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
-    
-    def is_position_marker(row, col):
-        # Top-left (7x7 module)
-        if 0 <= row < 7 and 0 <= col < 7:
-            return True
-        # Top-right (7x7 module)
-        if 0 <= row < 7 and module_count - 7 <= col < module_count:
-            return True
-        # Bottom-left (7x7 module)
-        if module_count - 7 <= row < module_count and 0 <= col < 7:
-            return True
-        return False
-    
-    # Then draw data modules as circles (skip position marker areas)
-    for row in range(module_count):
-        for col in range(module_count):
-            if is_position_marker(row, col):
-                continue
-            
-            if matrix[row][col]:
-                cx = offset + col * module_size + module_size / 2
-                cy = offset + row * module_size + module_size / 2
-                svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
     svg_elements.append('</svg>')
     
