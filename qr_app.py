@@ -30,8 +30,8 @@ TRANSLATIONS = {
         'generating': 'Generating your QR codes...',
         'success': '✅ QR codes generated successfully!',
         'preview_title': '### Preview',
-        'elegant_title': '#### Elegant Style (Circular Dots)',
-        'classic_title': '#### Classic Style (Square)',
+        'elegant_title': '#### Elegant',
+        'classic_title': '#### Classic',
         'download_title': '### Download',
         'download_elegant_png': '📥 Elegant PNG',
         'download_elegant_svg': '📥 Elegant SVG',
@@ -59,7 +59,7 @@ TRANSLATIONS = {
         - Use SVG for high-quality print and infinite scaling
         - Shorter URLs create simpler, less "busy" QR codes
         """,
-        'footer': 'Made by AR | DBS for easy QR code generation'
+        'footer': 'Made by AR for easy QR code generation'
     },
     'hu': {
         'title': '🎯 QR Kód Generátor',
@@ -74,8 +74,8 @@ TRANSLATIONS = {
         'generating': 'QR kódok generálása...',
         'success': '✅ QR kódok sikeresen létrehozva!',
         'preview_title': '### Előnézet',
-        'elegant_title': '#### Elegáns Stílus (Kör alakú pontok)',
-        'classic_title': '#### Klasszikus Stílus (Négyzet)',
+        'elegant_title': '#### Elegáns',
+        'classic_title': '#### Klasszikus',
         'download_title': '### Letöltés',
         'download_elegant_png': '📥 Elegáns PNG',
         'download_elegant_svg': '📥 Elegáns SVG',
@@ -103,7 +103,7 @@ TRANSLATIONS = {
         - Használd az SVG-t nyomtatáshoz és végtelen méretezéshez
         - A rövidebb URL-ek egyszerűbb, kevésbé zsúfolt QR kódokat eredményeznek
         """,
-        'footer': 'Készítette: AR | DBS egyszerű QR kód generáláshoz'
+        'footer': 'Egyszerű QR kód generáláshoz készítette AR'
     }
 }
 
