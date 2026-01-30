@@ -2,6 +2,7 @@
 """
 QR Code Generator Web App
 Streamlit interface for non-technical users
+Bilingual: English and Hungarian
 """
 
 import streamlit as st
@@ -11,6 +12,84 @@ from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from PIL import Image, ImageDraw
 import io
+
+# Language dictionary
+TRANSLATIONS = {
+    'en': {
+        'title': '🎯 QR Code Generator',
+        'subtitle': 'Generate stylish QR codes with circular dots for business cards and marketing materials',
+        'url_label': 'Enter the URL:',
+        'url_placeholder': '24.hu',
+        'url_help': 'Enter your URL (you can include https:// for compatibility, but it\'s not required)',
+        'filename_label': 'Filename (optional):',
+        'filename_help': 'Name for your QR code file (without extension)',
+        'generate_button': 'Generate QR Code',
+        'error_empty': '⚠️ Please enter a URL',
+        'generating': 'Generating your QR code...',
+        'success': '✅ QR code generated successfully!',
+        'preview_title': '### Preview',
+        'download_title': '### Download',
+        'download_png': '📥 Download PNG',
+        'download_svg': '📥 Download SVG',
+        'qr_url_label': '**QR Code URL:**',
+        'qr_info': '💡 QR Code Version: {version} | Modules: {size}x{size}',
+        'instructions_title': 'ℹ️ How to use',
+        'instructions': """
+        1. **Enter the URL** you want to encode (e.g., `24.hu`)
+        2. **Optional:** Change the filename if you want
+        3. Click **Generate QR Code**
+        4. Preview your QR code
+        5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
+        
+        **Tips:**
+        - For cleaner QR codes, use short URLs without https:// (e.g., `24.hu`)
+        - Modern phones will recognize domains automatically
+        - Test the QR code with your phone camera before printing
+        - Use PNG for general use (1000x1000 pixels)
+        - Use SVG for high-quality print and infinite scaling
+        - Shorter URLs create simpler, less "busy" QR codes
+        """,
+        'footer': 'Made by AR for easy QR code generation',
+        'language_label': 'Language / Nyelv'
+    },
+    'hu': {
+        'title': '🎯 QR Kód Generátor',
+        'subtitle': 'Készíts stílusos QR kódokat kör alakú pontokkal névjegykártyákhoz és marketing anyagokhoz',
+        'url_label': 'Add meg az URL-t:',
+        'url_placeholder': '24.hu',
+        'url_help': 'Írd be az URL-t (a https:// elhagyható, a modern telefonok felismerik)',
+        'filename_label': 'Fájlnév (opcionális):',
+        'filename_help': 'A QR kód fájl neve (kiterjesztés nélkül)',
+        'generate_button': 'QR Kód Létrehozása',
+        'error_empty': '⚠️ Kérlek adj meg egy URL-t',
+        'generating': 'QR kód generálása...',
+        'success': '✅ QR kód sikeresen létrehozva!',
+        'preview_title': '### Előnézet',
+        'download_title': '### Letöltés',
+        'download_png': '📥 PNG Letöltése',
+        'download_svg': '📥 SVG Letöltése',
+        'qr_url_label': '**QR Kód URL:**',
+        'qr_info': '💡 QR Kód Verzió: {version} | Modulok: {size}x{size}',
+        'instructions_title': 'ℹ️ Használati útmutató',
+        'instructions': """
+        1. **Írd be az URL-t** amit kódolni szeretnél (pl.: `24.hu`)
+        2. **Opcionális:** Módosítsd a fájlnevet ha szeretnéd
+        3. Kattints a **QR Kód Létrehozása** gombra
+        4. Nézd meg az előnézetet
+        5. Kattints a **PNG Letöltése** vagy **SVG Letöltése** gombra
+        
+        **Tippek:**
+        - Tisztább QR kódokhoz használj rövid URL-t https:// nélkül (pl.: `24.hu`)
+        - A modern telefonok automatikusan felismerik a domain neveket
+        - Nyomtatás előtt teszteld le a QR kódot a telefonod kamerájával
+        - Használd a PNG-t általános célra (1000x1000 pixel)
+        - Használd az SVG-t nyomtatáshoz és végtelen méretezéshez
+        - A rövidebb URL-ek egyszerűbb, kevésbé zsúfolt QR kódokat eredményeznek
+        """,
+        'footer': 'Készítette: AR egyszerű QR kód generáláshoz',
+        'language_label': 'Language / Nyelv'
+    }
+}
 
 class CircleAllModuleDrawer(QRModuleDrawer):
     """Custom drawer that makes ALL modules circular"""
@@ -210,42 +289,63 @@ def main():
         layout="centered"
     )
     
-    st.title("🎯 QR Code Generator")
-    st.markdown("Generate stylish QR codes with circular dots for business cards and marketing materials")
+    # Initialize language in session state
+    if 'language' not in st.session_state:
+        st.session_state.language = 'en'
+    
+    # Language selector in sidebar for easy access
+    with st.sidebar:
+        st.markdown("### 🌐 Language / Nyelv")
+        lang_option = st.radio(
+            "",
+            options=['en', 'hu'],
+            format_func=lambda x: '🇬🇧 English' if x == 'en' else '🇭🇺 Magyar',
+            index=0 if st.session_state.language == 'en' else 1,
+            key='lang_selector'
+        )
+        if lang_option != st.session_state.language:
+            st.session_state.language = lang_option
+            st.rerun()
+    
+    # Get current language translations
+    t = TRANSLATIONS[st.session_state.language]
+    
+    st.title(t['title'])
+    st.markdown(t['subtitle'])
     
     # Input section
     st.markdown("---")
     url = st.text_input(
-        "Enter the URL:",
-        placeholder="24.hu",
-        help="Enter your URL (you can include https:// for compatibility, but it's not required)"
+        t['url_label'],
+        placeholder=t['url_placeholder'],
+        help=t['url_help']
     )
     
     filename = st.text_input(
-        "Filename (optional):",
+        t['filename_label'],
         value="qr_code",
-        help="Name for your QR code file (without extension)"
+        help=t['filename_help']
     )
     
     # Generate button
-    if st.button("Generate QR Code", type="primary", use_container_width=True):
+    if st.button(t['generate_button'], type="primary", use_container_width=True):
         if not url:
-            st.error("⚠️ Please enter a URL")
+            st.error(t['error_empty'])
         else:
-            with st.spinner("Generating your QR code..."):
+            with st.spinner(t['generating']):
                 try:
                     # Generate QR code
                     img, qr, normalized_url = create_qr_code(url)
                     svg_content = create_svg(url)
                     
                     # Display preview
-                    st.success("✅ QR code generated successfully!")
+                    st.success(t['success'])
                     st.markdown("---")
-                    st.markdown("### Preview")
-                    st.image(img, caption="Your QR Code", use_container_width=True)
+                    st.markdown(t['preview_title'])
+                    st.image(img, caption="QR Code", use_container_width=True)
                     
                     # Download buttons
-                    st.markdown("### Download")
+                    st.markdown(t['download_title'])
                     col1, col2 = st.columns(2)
                     
                     # PNG download
@@ -255,7 +355,7 @@ def main():
                         png_data = buf.getvalue()
                         
                         st.download_button(
-                            label="📥 Download PNG",
+                            label=t['download_png'],
                             data=png_data,
                             file_name=f"{filename}.png",
                             mime="image/png",
@@ -265,7 +365,7 @@ def main():
                     # SVG download
                     with col2:
                         st.download_button(
-                            label="📥 Download SVG",
+                            label=t['download_svg'],
                             data=svg_content,
                             file_name=f"{filename}.svg",
                             mime="image/svg+xml",
@@ -274,36 +374,22 @@ def main():
                     
                     # Show URL for verification
                     st.markdown("---")
-                    st.markdown(f"**QR Code URL:** `{normalized_url}`")
-                    st.info(f"💡 QR Code Version: {qr.version} | Modules: {len(qr.get_matrix())}x{len(qr.get_matrix())}")
+                    st.markdown(f"{t['qr_url_label']} `{normalized_url}`")
+                    st.info(t['qr_info'].format(version=qr.version, size=len(qr.get_matrix())))
                     
                 except Exception as e:
-                    st.error(f"❌ Error generating QR code: {str(e)}")
+                    st.error(f"❌ Error: {str(e)}")
     
     # Instructions
     st.markdown("---")
-    with st.expander("ℹ️ How to use"):
-        st.markdown("""
-        1. **Enter the URL** you want to encode (e.g., `24.hu`)
-        2. **Optional:** Change the filename if you want
-        3. Click **Generate QR Code**
-        4. Preview your QR code
-        5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
-        
-        **Tips:**
-        - For cleaner QR codes, use short URLs without https:// (e.g., `24.hu`)
-        - Modern phones will recognize domains automatically
-        - Test the QR code with your phone camera before printing
-        - Use PNG for general use (1000x1000 pixels)
-        - Use SVG for high-quality print and infinite scaling
-        - Shorter URLs create simpler, less "busy" QR codes
-        """)
+    with st.expander(t['instructions_title']):
+        st.markdown(t['instructions'])
     
     # Footer
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #666; font-size: 0.9em;'>"
-        "Made by AR for easy QR code generation"
+        f"{t['footer']}"
         "</div>",
         unsafe_allow_html=True
     )
