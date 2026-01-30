@@ -269,31 +269,27 @@ def create_svg_elegant(url):
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
-    def is_in_position_marker_area(row, col):
-        """Check if position is within or near a position marker (including separator)"""
-        # Top-left (0-7 includes the 7x7 marker + separator)
-        if row <= 7 and col <= 7:
-            return True
-        # Top-right 
-        if row <= 7 and col >= module_count - 8:
-            return True
-        # Bottom-left
-        if row >= module_count - 8 and col <= 7:
-            return True
-        return False
-    
-    # Draw data modules as circles FIRST (skip position marker areas completely)
+    # Draw data modules as circles (we'll skip position markers)
     for row in range(module_count):
         for col in range(module_count):
-            if is_in_position_marker_area(row, col):
+            # Skip position detection patterns (7x7 each corner)
+            # Top-left corner
+            if row < 7 and col < 7:
+                continue
+            # Top-right corner
+            if row < 7 and col >= module_count - 7:
+                continue
+            # Bottom-left corner
+            if row >= module_count - 7 and col < 7:
                 continue
             
+            # Draw circle if this module is active
             if matrix[row][col]:
                 cx = offset + col * module_size + module_size / 2
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
-    # NOW draw the circular position markers on top
+    # NOW draw the three circular position markers on TOP
     # Top-left
     x_tl = offset
     y_tl = offset
