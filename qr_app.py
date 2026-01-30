@@ -294,17 +294,14 @@ def main():
     # Get current language translations
     t = TRANSLATIONS[st.session_state.language]
     
-    # Language switcher in top-right corner
-    col1, col2 = st.columns([6, 1])
-    with col1:
-        st.title(t['title'])
-    with col2:
-        # Simple flag button
-        current_flag = "🇭🇺" if st.session_state.language == 'hu' else "🇬🇧"
-        if st.button(current_flag, key="lang_switch"):
-            st.session_state.language = 'hu' if st.session_state.language == 'en' else 'en'
-            st.rerun()
+    # Language switcher - positioned to the left, before title
+    current_flag = "🇭🇺" if st.session_state.language == 'hu' else "🇬🇧"
+    if st.button(current_flag, key="lang_switch", help="Switch language"):
+        st.session_state.language = 'hu' if st.session_state.language == 'en' else 'en'
+        st.rerun()
     
+    # Title and subtitle
+    st.title(t['title'])
     st.markdown(t['subtitle'])
     
     # Input section
