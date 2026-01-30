@@ -287,14 +287,18 @@ def create_svg_elegant(url):
     ]
     
     def is_position_marker(row, col):
-        if 0 <= row < 7 and 0 <= col < 7:
+        # Top-left (including separator)
+        if 0 <= row < 8 and 0 <= col < 8:
             return True
-        if 0 <= row < 7 and module_count - 7 <= col < module_count:
+        # Top-right (including separator)
+        if 0 <= row < 8 and module_count - 8 <= col < module_count:
             return True
-        if module_count - 7 <= row < module_count and 0 <= col < 7:
+        # Bottom-left (including separator)
+        if module_count - 8 <= row < module_count and 0 <= col < 8:
             return True
         return False
     
+    # Draw data modules as circles (skip position marker areas)
     for row in range(module_count):
         for col in range(module_count):
             if is_position_marker(row, col):
@@ -305,8 +309,12 @@ def create_svg_elegant(url):
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
+    # Draw circular position markers (the three corners)
+    # Top-left
     draw_svg_position_marker(svg_elements, offset, offset, module_size)
+    # Top-right
     draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)
+    # Bottom-left
     draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)
     
     svg_elements.append('</svg>')
