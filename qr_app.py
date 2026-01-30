@@ -3,6 +3,7 @@
 QR Code Generator Web App
 Streamlit interface for non-technical users
 Bilingual: English and Hungarian
+Supports both elegant circular and classic square styles
 """
 
 import streamlit as st
@@ -23,23 +24,31 @@ TRANSLATIONS = {
         'url_help': 'Enter your URL (you can include https:// for compatibility, but it\'s not required)',
         'filename_label': 'Filename (optional):',
         'filename_help': 'Name for your QR code file (without extension)',
-        'generate_button': 'Generate QR Code',
+        'generate_button': 'Generate QR Codes',
         'error_empty': '⚠️ Please enter a URL',
-        'generating': 'Generating your QR code...',
-        'success': '✅ QR code generated successfully!',
+        'generating': 'Generating your QR codes...',
+        'success': '✅ QR codes generated successfully!',
         'preview_title': '### Preview',
+        'elegant_title': '#### Elegant Style (Circular Dots)',
+        'classic_title': '#### Classic Style (Square)',
         'download_title': '### Download',
-        'download_png': '📥 Download PNG',
-        'download_svg': '📥 Download SVG',
+        'download_elegant_png': '📥 Elegant PNG',
+        'download_elegant_svg': '📥 Elegant SVG',
+        'download_classic_png': '📥 Classic PNG',
+        'download_classic_svg': '📥 Classic SVG',
         'qr_url_label': '**QR Code URL:**',
         'qr_info': '💡 QR Code Version: {version} | Modules: {size}x{size}',
         'instructions_title': 'ℹ️ How to use',
         'instructions': """
         1. **Enter the URL** you want to encode (e.g., `24.hu`)
         2. **Optional:** Change the filename if you want
-        3. Click **Generate QR Code**
-        4. Preview your QR code
-        5. Click **Download PNG** for raster graphics or **Download SVG** for vector graphics
+        3. Click **Generate QR Codes**
+        4. Preview both styles
+        5. Download your preferred format (PNG or SVG) in either style
+        
+        **Styles:**
+        - **Elegant:** Circular dots with rounded position markers (modern look)
+        - **Classic:** Traditional square modules (maximum compatibility)
         
         **Tips:**
         - For cleaner QR codes, use short URLs without https:// (e.g., `24.hu`)
@@ -59,23 +68,31 @@ TRANSLATIONS = {
         'url_help': 'Írd be az URL-t (a https:// elhagyható, a modern telefonok felismerik)',
         'filename_label': 'Fájlnév (opcionális):',
         'filename_help': 'A QR kód fájl neve (kiterjesztés nélkül)',
-        'generate_button': 'QR Kód Létrehozása',
+        'generate_button': 'QR Kódok Létrehozása',
         'error_empty': '⚠️ Kérlek adj meg egy URL-t',
-        'generating': 'QR kód generálása...',
-        'success': '✅ QR kód sikeresen létrehozva!',
+        'generating': 'QR kódok generálása...',
+        'success': '✅ QR kódok sikeresen létrehozva!',
         'preview_title': '### Előnézet',
+        'elegant_title': '#### Elegáns Stílus (Kör alakú pontok)',
+        'classic_title': '#### Klasszikus Stílus (Négyzet)',
         'download_title': '### Letöltés',
-        'download_png': '📥 PNG Letöltése',
-        'download_svg': '📥 SVG Letöltése',
+        'download_elegant_png': '📥 Elegáns PNG',
+        'download_elegant_svg': '📥 Elegáns SVG',
+        'download_classic_png': '📥 Klasszikus PNG',
+        'download_classic_svg': '📥 Klasszikus SVG',
         'qr_url_label': '**QR Kód URL:**',
         'qr_info': '💡 QR Kód Verzió: {version} | Modulok: {size}x{size}',
         'instructions_title': 'ℹ️ Használati útmutató',
         'instructions': """
         1. **Írd be az URL-t** amit kódolni szeretnél (pl.: `24.hu`)
         2. **Opcionális:** Módosítsd a fájlnevet ha szeretnéd
-        3. Kattints a **QR Kód Létrehozása** gombra
-        4. Nézd meg az előnézetet
-        5. Kattints a **PNG Letöltése** vagy **SVG Letöltése** gombra
+        3. Kattints a **QR Kódok Létrehozása** gombra
+        4. Nézd meg mindkét stílust az előnézetben
+        5. Töltsd le a választott formátumot (PNG vagy SVG) bármelyik stílusban
+        
+        **Stílusok:**
+        - **Elegáns:** Kör alakú pontok kerek pozíció jelzőkkel (modern megjelenés)
+        - **Klasszikus:** Hagyományos négyzet modulok (maximális kompatibilitás)
         
         **Tippek:**
         - Tisztább QR kódokhoz használj rövid URL-t https:// nélkül (pl.: `24.hu`)
@@ -170,16 +187,15 @@ def normalize_url(url):
     """Clean up the URL but don't force https://"""
     return url.strip()
 
-def create_qr_code(url):
-    """Generate QR code with circular dots"""
+def create_qr_code_elegant(url):
+    """Generate elegant QR code with circular dots"""
     box_size = 40
     border = 4
     
-    # Normalize URL
     url = normalize_url(url)
     
     qr = qrcode.QRCode(
-        version=None,  # Auto-size
+        version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
@@ -195,6 +211,29 @@ def create_qr_code(url):
     )
     
     img = replace_position_markers(img, box_size, border)
+    img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
+    
+    return img, qr, url
+
+def create_qr_code_classic(url):
+    """Generate classic QR code with square modules"""
+    box_size = 40
+    border = 4
+    
+    url = normalize_url(url)
+    
+    qr = qrcode.QRCode(
+        version=None,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=box_size,
+        border=border,
+    )
+    
+    qr.add_data(url)
+    qr.make(fit=True)
+    
+    # Classic style - standard square modules
+    img = qr.make_image(fill_color="black", back_color="white")
     img = img.resize((1000, 1000), Image.Resampling.LANCZOS)
     
     return img, qr, url
@@ -216,17 +255,16 @@ def draw_svg_position_marker(svg_elements, x, y, module_size):
     inner_r = 1.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{inner_r}" fill="black"/>')
 
-def create_svg(url):
-    """Generate SVG QR code with circular dots"""
+def create_svg_elegant(url):
+    """Generate elegant SVG QR code with circular dots"""
     box_size = 40
     border = 4
     size = 1000
     
-    # Normalize URL
     url = normalize_url(url)
     
     qr = qrcode.QRCode(
-        version=None,  # Auto-size
+        version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=box_size,
         border=border,
@@ -238,19 +276,16 @@ def create_svg(url):
     matrix = qr.get_matrix()
     module_count = len(matrix)
     
-    # Calculate scaling
     module_size = size / (module_count + 2 * border)
     offset = border * module_size
     radius = module_size * 0.42
     
-    # Start SVG
     svg_elements = [
         f'<?xml version="1.0" encoding="UTF-8"?>',
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
-    # Function to check if position is in a position marker
     def is_position_marker(row, col):
         if 0 <= row < 7 and 0 <= col < 7:
             return True
@@ -260,7 +295,6 @@ def create_svg(url):
             return True
         return False
     
-    # Draw data modules as circles
     for row in range(module_count):
         for col in range(module_count):
             if is_position_marker(row, col):
@@ -271,10 +305,50 @@ def create_svg(url):
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
-    # Draw circular position markers
-    draw_svg_position_marker(svg_elements, offset, offset, module_size)  # Top-left
-    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)  # Top-right
-    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)  # Bottom-left
+    draw_svg_position_marker(svg_elements, offset, offset, module_size)
+    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)
+    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)
+    
+    svg_elements.append('</svg>')
+    
+    return '\n'.join(svg_elements)
+
+def create_svg_classic(url):
+    """Generate classic SVG QR code with square modules"""
+    box_size = 40
+    border = 4
+    size = 1000
+    
+    url = normalize_url(url)
+    
+    qr = qrcode.QRCode(
+        version=None,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=box_size,
+        border=border,
+    )
+    
+    qr.add_data(url)
+    qr.make(fit=True)
+    
+    matrix = qr.get_matrix()
+    module_count = len(matrix)
+    
+    module_size = size / (module_count + 2 * border)
+    offset = border * module_size
+    
+    svg_elements = [
+        f'<?xml version="1.0" encoding="UTF-8"?>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
+        f'<rect width="{size}" height="{size}" fill="white"/>'
+    ]
+    
+    for row in range(module_count):
+        for col in range(module_count):
+            if matrix[row][col]:
+                x = offset + col * module_size
+                y = offset + row * module_size
+                svg_elements.append(f'<rect x="{x}" y="{y}" width="{module_size}" height="{module_size}" fill="black"/>')
     
     svg_elements.append('</svg>')
     
@@ -325,40 +399,75 @@ def main():
         else:
             with st.spinner(t['generating']):
                 try:
-                    # Generate QR code
-                    img, qr, normalized_url = create_qr_code(url)
-                    svg_content = create_svg(url)
+                    # Generate both styles
+                    img_elegant, qr_elegant, normalized_url = create_qr_code_elegant(url)
+                    svg_elegant = create_svg_elegant(url)
+                    
+                    img_classic, qr_classic, _ = create_qr_code_classic(url)
+                    svg_classic = create_svg_classic(url)
                     
                     # Display preview
                     st.success(t['success'])
                     st.markdown("---")
                     st.markdown(t['preview_title'])
-                    st.image(img, caption="QR Code", use_container_width=True)
                     
-                    # Download buttons
-                    st.markdown(t['download_title'])
+                    # Show both styles side by side
                     col1, col2 = st.columns(2)
                     
-                    # PNG download
+                    with col1:
+                        st.markdown(t['elegant_title'])
+                        st.image(img_elegant, use_container_width=True)
+                    
+                    with col2:
+                        st.markdown(t['classic_title'])
+                        st.image(img_classic, use_container_width=True)
+                    
+                    # Download buttons
+                    st.markdown("---")
+                    st.markdown(t['download_title'])
+                    
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    # Elegant PNG
                     with col1:
                         buf = io.BytesIO()
-                        img.save(buf, format='PNG')
-                        png_data = buf.getvalue()
-                        
+                        img_elegant.save(buf, format='PNG')
                         st.download_button(
-                            label=t['download_png'],
-                            data=png_data,
-                            file_name=f"{filename}.png",
+                            label=t['download_elegant_png'],
+                            data=buf.getvalue(),
+                            file_name=f"{filename}_elegant.png",
                             mime="image/png",
                             use_container_width=True
                         )
                     
-                    # SVG download
+                    # Elegant SVG
                     with col2:
                         st.download_button(
-                            label=t['download_svg'],
-                            data=svg_content,
-                            file_name=f"{filename}.svg",
+                            label=t['download_elegant_svg'],
+                            data=svg_elegant,
+                            file_name=f"{filename}_elegant.svg",
+                            mime="image/svg+xml",
+                            use_container_width=True
+                        )
+                    
+                    # Classic PNG
+                    with col3:
+                        buf = io.BytesIO()
+                        img_classic.save(buf, format='PNG')
+                        st.download_button(
+                            label=t['download_classic_png'],
+                            data=buf.getvalue(),
+                            file_name=f"{filename}_classic.png",
+                            mime="image/png",
+                            use_container_width=True
+                        )
+                    
+                    # Classic SVG
+                    with col4:
+                        st.download_button(
+                            label=t['download_classic_svg'],
+                            data=svg_classic,
+                            file_name=f"{filename}_classic.svg",
                             mime="image/svg+xml",
                             use_container_width=True
                         )
@@ -366,7 +475,7 @@ def main():
                     # Show URL for verification
                     st.markdown("---")
                     st.markdown(f"{t['qr_url_label']} `{normalized_url}`")
-                    st.info(t['qr_info'].format(version=qr.version, size=len(qr.get_matrix())))
+                    st.info(t['qr_info'].format(version=qr_elegant.version, size=len(qr_elegant.get_matrix())))
                     
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
