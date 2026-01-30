@@ -238,23 +238,6 @@ def create_qr_code_classic(url):
     
     return img, qr, url
 
-def draw_svg_position_marker(svg_elements, x, y, module_size):
-    """Add SVG elements for circular position marker"""
-    center_x = x + 3.5 * module_size
-    center_y = y + 3.5 * module_size
-    
-    # Outer circle
-    outer_r = 3.5 * module_size
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{outer_r}" fill="black"/>')
-    
-    # Middle white circle
-    middle_r = 2.5 * module_size
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{middle_r}" fill="white"/>')
-    
-    # Inner black circle
-    inner_r = 1.5 * module_size
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{inner_r}" fill="black"/>')
-
 def create_svg_elegant(url):
     """Generate elegant SVG QR code with circular dots"""
     box_size = 40
@@ -286,19 +269,47 @@ def create_svg_elegant(url):
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
+    # First, draw the circular position markers (bottom layer)
+    # Top-left
+    x_tl = offset
+    y_tl = offset
+    center_x = x_tl + 3.5 * module_size
+    center_y = y_tl + 3.5 * module_size
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
+    
+    # Top-right
+    x_tr = offset + (module_count - 7) * module_size
+    y_tr = offset
+    center_x = x_tr + 3.5 * module_size
+    center_y = y_tr + 3.5 * module_size
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
+    
+    # Bottom-left
+    x_bl = offset
+    y_bl = offset + (module_count - 7) * module_size
+    center_x = x_bl + 3.5 * module_size
+    center_y = y_bl + 3.5 * module_size
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
+    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
+    
     def is_position_marker(row, col):
-        # Top-left (including separator)
-        if 0 <= row < 8 and 0 <= col < 8:
+        # Top-left (7x7 module)
+        if 0 <= row < 7 and 0 <= col < 7:
             return True
-        # Top-right (including separator)
-        if 0 <= row < 8 and module_count - 8 <= col < module_count:
+        # Top-right (7x7 module)
+        if 0 <= row < 7 and module_count - 7 <= col < module_count:
             return True
-        # Bottom-left (including separator)
-        if module_count - 8 <= row < module_count and 0 <= col < 8:
+        # Bottom-left (7x7 module)
+        if module_count - 7 <= row < module_count and 0 <= col < 7:
             return True
         return False
     
-    # Draw data modules as circles (skip position marker areas)
+    # Then draw data modules as circles (skip position marker areas)
     for row in range(module_count):
         for col in range(module_count):
             if is_position_marker(row, col):
@@ -308,14 +319,6 @@ def create_svg_elegant(url):
                 cx = offset + col * module_size + module_size / 2
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
-    
-    # Draw circular position markers (the three corners)
-    # Top-left
-    draw_svg_position_marker(svg_elements, offset, offset, module_size)
-    # Top-right
-    draw_svg_position_marker(svg_elements, offset + (module_count - 7) * module_size, offset, module_size)
-    # Bottom-left
-    draw_svg_position_marker(svg_elements, offset, offset + (module_count - 7) * module_size, module_size)
     
     svg_elements.append('</svg>')
     
