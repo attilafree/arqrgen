@@ -49,8 +49,7 @@ TRANSLATIONS = {
         - Use SVG for high-quality print and infinite scaling
         - Shorter URLs create simpler, less "busy" QR codes
         """,
-        'footer': 'Made by AR DBS for easy QR code generation',
-        'lang_toggle': 'English'
+        'footer': 'Made by AR | DBS for easy QR code generation'
     },
     'hu': {
         'title': '🎯 QR Kód Generátor',
@@ -86,8 +85,7 @@ TRANSLATIONS = {
         - Használd az SVG-t nyomtatáshoz és végtelen méretezéshez
         - A rövidebb URL-ek egyszerűbb, kevésbé zsúfolt QR kódokat eredményeznek
         """,
-        'footer': 'Készítette: AR DBS egyszerű QR kód generáláshoz',
-        'lang_toggle': 'Magyar'
+        'footer': 'Készítette: AR | DBS egyszerű QR kód generáláshoz'
     }
 }
 
@@ -286,61 +284,214 @@ def main():
     st.set_page_config(
         page_title="QR Code Generator",
         page_icon="🎯",
-        layout="centered"
+        layout="centered",
+        initial_sidebar_state="collapsed"
     )
     
-    # Initialize language in session state
+    # Initialize session state
     if 'language' not in st.session_state:
         st.session_state.language = 'en'
+    if 'dark_mode' not in st.session_state:
+        st.session_state.dark_mode = True
     
     # Get current language translations
     t = TRANSLATIONS[st.session_state.language]
     
-    # Custom CSS for iOS-style toggle
-    st.markdown("""
+    # Custom CSS for sleek minimal design with dark/light mode
+    dark_bg = "#0E1117" if st.session_state.dark_mode else "#FFFFFF"
+    dark_secondary_bg = "#1E1E1E" if st.session_state.dark_mode else "#F8F9FA"
+    dark_text = "#FAFAFA" if st.session_state.dark_mode else "#0E1117"
+    dark_secondary_text = "#B0B0B0" if st.session_state.dark_mode else "#666666"
+    accent_color = "#4A90E2"  # Elegant blue
+    
+    st.markdown(f"""
     <style>
-    .language-toggle {
+    /* Global theme */
+    .stApp {{
+        background-color: {dark_bg};
+        color: {dark_text};
+    }}
+    
+    /* Header controls */
+    .header-controls {{
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 999;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }}
+    
+    /* Flag button */
+    .flag-btn {{
+        background: {dark_secondary_bg};
+        border: 2px solid {accent_color};
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-    .toggle-container {
-        position: relative;
-        display: inline-block;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 24px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+    }}
+    
+    .flag-btn:hover {{
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+    }}
+    
+    /* Dark mode toggle */
+    .mode-toggle {{
+        background: {dark_secondary_bg};
+        border: 2px solid {accent_color};
+        border-radius: 25px;
         width: 50px;
         height: 28px;
-    }
-    .toggle-label {
-        color: #666;
-        font-weight: 500;
-    }
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 2px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+    }}
+    
+    .mode-toggle:hover {{
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+    }}
+    
+    .mode-slider {{
+        background: {accent_color};
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }}
+    
+    /* Button styling */
+    .stButton > button {{
+        background: linear-gradient(135deg, {accent_color} 0%, #357ABD 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    }}
+    
+    .stButton > button:hover {{
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+    }}
+    
+    /* Download buttons */
+    .stDownloadButton > button {{
+        background: {dark_secondary_bg};
+        color: {accent_color};
+        border: 2px solid {accent_color};
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }}
+    
+    .stDownloadButton > button:hover {{
+        background: {accent_color};
+        color: white;
+        transform: translateY(-2px);
+    }}
+    
+    /* Input fields */
+    .stTextInput > div > div > input {{
+        border-radius: 12px;
+        border: 2px solid {accent_color};
+        background: {dark_secondary_bg};
+        color: {dark_text};
+        padding: 12px;
+        transition: all 0.3s ease;
+    }}
+    
+    .stTextInput > div > div > input:focus {{
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+    }}
+    
+    /* Cards and containers */
+    .element-container {{
+        background: {dark_secondary_bg};
+        border-radius: 16px;
+        padding: 20px;
+        margin: 10px 0;
+    }}
+    
+    /* Success/Error messages */
+    .stSuccess {{
+        background: rgba(74, 144, 226, 0.1);
+        border-left: 4px solid {accent_color};
+        border-radius: 8px;
+    }}
+    
+    .stError {{
+        background: rgba(255, 77, 77, 0.1);
+        border-left: 4px solid #FF4D4D;
+        border-radius: 8px;
+    }}
+    
+    /* Expander */
+    .streamlit-expanderHeader {{
+        background: {dark_secondary_bg};
+        border-radius: 12px;
+        color: {dark_text};
+    }}
+    
+    /* Info boxes */
+    .stAlert {{
+        border-radius: 12px;
+        border: 2px solid {accent_color};
+        background: rgba(74, 144, 226, 0.1);
+    }}
+    
+    /* Hide Streamlit branding */
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    
+    /* Responsive spacing */
+    .main .block-container {{
+        padding-top: 80px;
+        max-width: 800px;
+    }}
     </style>
     """, unsafe_allow_html=True)
     
-    # Language toggle at top right
-    col1, col2 = st.columns([5, 1])
+    # Header controls (fixed position)
+    col1, col2, col3 = st.columns([6, 1, 1])
+    
     with col2:
-        lang_toggle = st.toggle(
-            "🌐",
-            value=(st.session_state.language == 'hu'),
-            key='lang_toggle',
-            help="English / Magyar"
+        # Dark/Light mode toggle
+        dark_mode_toggle = st.button(
+            "🌙" if st.session_state.dark_mode else "☀️",
+            key="dark_mode_btn",
+            help="Toggle dark/light mode"
         )
-        if lang_toggle and st.session_state.language == 'en':
-            st.session_state.language = 'hu'
+        if dark_mode_toggle:
+            st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
-        elif not lang_toggle and st.session_state.language == 'hu':
-            st.session_state.language = 'en'
+    
+    with col3:
+        # Language flag button
+        current_flag = "🇭🇺" if st.session_state.language == 'hu' else "🇬🇧"
+        if st.button(current_flag, key="lang_btn", help="Switch language"):
+            st.session_state.language = 'hu' if st.session_state.language == 'en' else 'en'
             st.rerun()
-        
-        # Show current language
-        st.caption(f"{'🇭🇺 HU' if st.session_state.language == 'hu' else '🇬🇧 EN'}")
     
     st.title(t['title'])
-    st.markdown(t['subtitle'])
+    st.markdown(f"<p style='color: {dark_secondary_text}; font-size: 1.1em;'>{t['subtitle']}</p>", unsafe_allow_html=True)
     
     # Input section
     st.markdown("---")
@@ -417,7 +568,7 @@ def main():
     # Footer
     st.markdown("---")
     st.markdown(
-        "<div style='text-align: center; color: #666; font-size: 0.9em;'>"
+        f"<div style='text-align: center; color: {dark_secondary_text}; font-size: 0.9em;'>"
         f"{t['footer']}"
         "</div>",
         unsafe_allow_html=True
