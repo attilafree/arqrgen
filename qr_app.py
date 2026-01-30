@@ -269,49 +269,45 @@ def create_svg_elegant(url):
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
-    # Draw data modules as circles (we'll skip position markers)
+    # Draw ALL data modules as circles (don't skip anything)
     for row in range(module_count):
         for col in range(module_count):
-            # Skip position detection patterns (7x7 each corner)
-            # Top-left corner
-            if row < 7 and col < 7:
-                continue
-            # Top-right corner
-            if row < 7 and col >= module_count - 7:
-                continue
-            # Bottom-left corner
-            if row >= module_count - 7 and col < 7:
-                continue
-            
-            # Draw circle if this module is active
             if matrix[row][col]:
                 cx = offset + col * module_size + module_size / 2
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
-    # NOW draw the three circular position markers on TOP
+    # Now COVER the position marker areas with white rectangles
+    marker_size = 7 * module_size
+    
+    # Top-left - white rectangle
+    svg_elements.append(f'<rect x="{offset}" y="{offset}" width="{marker_size}" height="{marker_size}" fill="white"/>')
+    
+    # Top-right - white rectangle
+    x_tr = offset + (module_count - 7) * module_size
+    svg_elements.append(f'<rect x="{x_tr}" y="{offset}" width="{marker_size}" height="{marker_size}" fill="white"/>')
+    
+    # Bottom-left - white rectangle
+    y_bl = offset + (module_count - 7) * module_size
+    svg_elements.append(f'<rect x="{offset}" y="{y_bl}" width="{marker_size}" height="{marker_size}" fill="white"/>')
+    
+    # NOW draw the circular position markers on top of the white rectangles
     # Top-left
-    x_tl = offset
-    y_tl = offset
-    center_x = x_tl + 3.5 * module_size
-    center_y = y_tl + 3.5 * module_size
+    center_x = offset + 3.5 * module_size
+    center_y = offset + 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
     
     # Top-right
-    x_tr = offset + (module_count - 7) * module_size
-    y_tr = offset
     center_x = x_tr + 3.5 * module_size
-    center_y = y_tr + 3.5 * module_size
+    center_y = offset + 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
     
     # Bottom-left
-    x_bl = offset
-    y_bl = offset + (module_count - 7) * module_size
-    center_x = x_bl + 3.5 * module_size
+    center_x = offset + 3.5 * module_size
     center_y = y_bl + 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
