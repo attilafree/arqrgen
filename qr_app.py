@@ -13,6 +13,7 @@ from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
 from qrcode.image.styles.colormasks import SolidFillColorMask
 from PIL import Image, ImageDraw
 import io
+import base64
 
 # Language dictionary
 TRANSLATIONS = {
@@ -239,83 +240,24 @@ def create_qr_code_classic(url):
     return img, qr, url
 
 def create_svg_elegant(url):
-    """Generate elegant SVG QR code with circular dots"""
-    box_size = 40
-    border = 4
+    """Generate elegant SVG by embedding the PNG version"""
+    # Create the PNG version which we know works perfectly
+    img_elegant, qr, normalized_url = create_qr_code_elegant(url)
+    
     size = 1000
     
-    url = normalize_url(url)
+    # Convert PNG to base64
+    buffered = io.BytesIO()
+    img_elegant.save(buffered, format="PNG")
+    img_base64 = base64.b64encode(buffered.getvalue()).decode()
     
-    qr = qrcode.QRCode(
-        version=None,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=box_size,
-        border=border,
-    )
+    # Create SVG with embedded PNG
+    svg = f'''<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{size}" height="{size}" viewBox="0 0 {size} {size}">
+<image width="{size}" height="{size}" xlink:href="data:image/png;base64,{img_base64}"/>
+</svg>'''
     
-    qr.add_data(url)
-    qr.make(fit=True)
-    
-    matrix = qr.get_matrix()
-    module_count = len(matrix)
-    
-    module_size = size / (module_count + 2 * border)
-    offset = border * module_size
-    radius = module_size * 0.42
-    
-    svg_elements = [
-        f'<?xml version="1.0" encoding="UTF-8"?>',
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">',
-        f'<rect width="{size}" height="{size}" fill="white"/>'
-    ]
-    
-    # Draw ALL data modules as circles first
-    for row in range(module_count):
-        for col in range(module_count):
-            if matrix[row][col]:
-                cx = offset + col * module_size + module_size / 2
-                cy = offset + row * module_size + module_size / 2
-                svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
-    
-    # Cover position marker areas with LARGER white rectangles (8x8 to include separator)
-    marker_clear_size = 8 * module_size
-    
-    # Top-left - clear 8x8 area
-    svg_elements.append(f'<rect x="{offset}" y="{offset}" width="{marker_clear_size}" height="{marker_clear_size}" fill="white"/>')
-    
-    # Top-right - clear 8x8 area
-    x_tr_clear = offset + (module_count - 8) * module_size
-    svg_elements.append(f'<rect x="{x_tr_clear}" y="{offset}" width="{marker_clear_size}" height="{marker_clear_size}" fill="white"/>')
-    
-    # Bottom-left - clear 8x8 area
-    y_bl_clear = offset + (module_count - 8) * module_size
-    svg_elements.append(f'<rect x="{offset}" y="{y_bl_clear}" width="{marker_clear_size}" height="{marker_clear_size}" fill="white"/>')
-    
-    # Draw the circular position markers (centered in 7x7 grid)
-    # Top-left
-    center_x = offset + 3.5 * module_size
-    center_y = offset + 3.5 * module_size
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
-    
-    # Top-right
-    center_x = offset + (module_count - 7) * module_size + 3.5 * module_size
-    center_y = offset + 3.5 * module_size
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
-    
-    # Bottom-left
-    center_x = offset + 3.5 * module_size
-    center_y = offset + (module_count - 7) * module_size + 3.5 * module_size
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
-    svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
-    
-    svg_elements.append('</svg>')
-    
-    return '\n'.join(svg_elements)
+    return svg
 
 def create_svg_classic(url):
     """Generate classic SVG QR code with square modules"""
