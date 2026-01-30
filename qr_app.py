@@ -49,8 +49,8 @@ TRANSLATIONS = {
         - Use SVG for high-quality print and infinite scaling
         - Shorter URLs create simpler, less "busy" QR codes
         """,
-        'footer': 'Made by AR for easy QR code generation',
-        'language_label': 'Language / Nyelv'
+        'footer': 'Made by AR DBS for easy QR code generation',
+        'lang_toggle': 'English'
     },
     'hu': {
         'title': '🎯 QR Kód Generátor',
@@ -86,8 +86,8 @@ TRANSLATIONS = {
         - Használd az SVG-t nyomtatáshoz és végtelen méretezéshez
         - A rövidebb URL-ek egyszerűbb, kevésbé zsúfolt QR kódokat eredményeznek
         """,
-        'footer': 'Készítette: AR egyszerű QR kód generáláshoz',
-        'language_label': 'Language / Nyelv'
+        'footer': 'Készítette: AR DBS egyszerű QR kód generáláshoz',
+        'lang_toggle': 'Magyar'
     }
 }
 
@@ -293,22 +293,51 @@ def main():
     if 'language' not in st.session_state:
         st.session_state.language = 'en'
     
-    # Language selector in sidebar for easy access
-    with st.sidebar:
-        st.markdown("### 🌐 Language / Nyelv")
-        lang_option = st.radio(
-            "",
-            options=['en', 'hu'],
-            format_func=lambda x: '🇬🇧 English' if x == 'en' else '🇭🇺 Magyar',
-            index=0 if st.session_state.language == 'en' else 1,
-            key='lang_selector'
-        )
-        if lang_option != st.session_state.language:
-            st.session_state.language = lang_option
-            st.rerun()
-    
     # Get current language translations
     t = TRANSLATIONS[st.session_state.language]
+    
+    # Custom CSS for iOS-style toggle
+    st.markdown("""
+    <style>
+    .language-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    .toggle-container {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+    }
+    .toggle-label {
+        color: #666;
+        font-weight: 500;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Language toggle at top right
+    col1, col2 = st.columns([5, 1])
+    with col2:
+        lang_toggle = st.toggle(
+            "🌐",
+            value=(st.session_state.language == 'hu'),
+            key='lang_toggle',
+            help="English / Magyar"
+        )
+        if lang_toggle and st.session_state.language == 'en':
+            st.session_state.language = 'hu'
+            st.rerun()
+        elif not lang_toggle and st.session_state.language == 'hu':
+            st.session_state.language = 'en'
+            st.rerun()
+        
+        # Show current language
+        st.caption(f"{'🇭🇺 HU' if st.session_state.language == 'hu' else '🇬🇧 EN'}")
     
     st.title(t['title'])
     st.markdown(t['subtitle'])
