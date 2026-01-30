@@ -269,7 +269,7 @@ def create_svg_elegant(url):
         f'<rect width="{size}" height="{size}" fill="white"/>'
     ]
     
-    # Draw ALL data modules as circles (don't skip anything)
+    # Draw ALL data modules as circles first
     for row in range(module_count):
         for col in range(module_count):
             if matrix[row][col]:
@@ -277,21 +277,21 @@ def create_svg_elegant(url):
                 cy = offset + row * module_size + module_size / 2
                 svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{radius}" fill="black"/>')
     
-    # Now COVER the position marker areas with white rectangles
-    marker_size = 7 * module_size
+    # Cover position marker areas with LARGER white rectangles (8x8 to include separator)
+    marker_clear_size = 8 * module_size
     
-    # Top-left - white rectangle
-    svg_elements.append(f'<rect x="{offset}" y="{offset}" width="{marker_size}" height="{marker_size}" fill="white"/>')
+    # Top-left - clear 8x8 area
+    svg_elements.append(f'<rect x="{offset}" y="{offset}" width="{marker_clear_size}" height="{marker_clear_size}" fill="white"/>')
     
-    # Top-right - white rectangle
-    x_tr = offset + (module_count - 7) * module_size
-    svg_elements.append(f'<rect x="{x_tr}" y="{offset}" width="{marker_size}" height="{marker_size}" fill="white"/>')
+    # Top-right - clear 8x8 area
+    x_tr_clear = offset + (module_count - 8) * module_size
+    svg_elements.append(f'<rect x="{x_tr_clear}" y="{offset}" width="{marker_clear_size}" height="{marker_clear_size}" fill="white"/>')
     
-    # Bottom-left - white rectangle
-    y_bl = offset + (module_count - 7) * module_size
-    svg_elements.append(f'<rect x="{offset}" y="{y_bl}" width="{marker_size}" height="{marker_size}" fill="white"/>')
+    # Bottom-left - clear 8x8 area
+    y_bl_clear = offset + (module_count - 8) * module_size
+    svg_elements.append(f'<rect x="{offset}" y="{y_bl_clear}" width="{marker_clear_size}" height="{marker_clear_size}" fill="white"/>')
     
-    # NOW draw the circular position markers on top of the white rectangles
+    # Draw the circular position markers (centered in 7x7 grid)
     # Top-left
     center_x = offset + 3.5 * module_size
     center_y = offset + 3.5 * module_size
@@ -300,7 +300,7 @@ def create_svg_elegant(url):
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
     
     # Top-right
-    center_x = x_tr + 3.5 * module_size
+    center_x = offset + (module_count - 7) * module_size + 3.5 * module_size
     center_y = offset + 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
@@ -308,7 +308,7 @@ def create_svg_elegant(url):
     
     # Bottom-left
     center_x = offset + 3.5 * module_size
-    center_y = y_bl + 3.5 * module_size
+    center_y = offset + (module_count - 7) * module_size + 3.5 * module_size
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{3.5 * module_size}" fill="black"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{2.5 * module_size}" fill="white"/>')
     svg_elements.append(f'<circle cx="{center_x}" cy="{center_y}" r="{1.5 * module_size}" fill="black"/>')
